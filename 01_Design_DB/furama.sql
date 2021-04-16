@@ -278,6 +278,14 @@ ALTER TABLE `vitri`
   MODIFY `idViTri` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 
+
+-- chen them cot ngaySinh cho bang khachhang
+ALTER TABLE `furama`.`khachhang` 
+ADD COLUMN `NgaySinh` DATE NULL AFTER `HoTen`,
+CHANGE COLUMN `idLoaiKhachHang` `idLoaiKhachHang` INT NOT NULL AFTER `idKhachHang`;
+
+
+
 -- Các ràng buộc cho các bảng đã đổ
 --
 
@@ -316,3 +324,60 @@ ALTER TABLE `nhanvien`
   ADD CONSTRAINT `fk_bophan_employee` FOREIGN KEY (`idBoPhan`) REFERENCES `bophan` (`idBoPhan`),
   ADD CONSTRAINT `fk_trinhdo_employee` FOREIGN KEY (`idTrinhDo`) REFERENCES `trinhdo` (`idTrinhDo`),
   ADD CONSTRAINT `fk_vitri_employee` FOREIGN KEY (`idViTri`) REFERENCES `vitri` (`idViTri`);
+  
+  
+  -- xoa cot addressi trong bang test
+  --
+  ALTER TABLE `loc`.`test` 
+  DROP COLUMN `addressi`;
+  
+  -- cach chen them cot vao bang khachhang
+  -- 
+  ALTER TABLE khachhang ADD idLoaiKhachHang;
+  
+  
+  INSERT INTO `furama`.`kieuthue`(`idKieuThue`, `TenKieuThue`, `Gia`)
+  VALUES('1','thuê theo tháng',15000000);
+  INSERT INTO `furama`.`kieuthue`(`idKieuThue`, `TenKieuThue`, `Gia`)
+  VALUES('2','thuê theo ngày',500000);
+  INSERT INTO `furama`.`kieuthue`(`idKieuThue`, `TenKieuThue`, `Gia`)
+  VALUES('3','thuê theo năm',2000000000);
+  
+  
+  INSERT INTO `furama`.`loaidichvu`(`idLoaiDichVu`, `TenLoaiDichVu`)
+  VALUES('1','thuê villa');
+  INSERT INTO `furama`.`loaidichvu`(`idLoaiDichVu`, `TenLoaiDichVu`)
+  VALUES('2','thuê house');
+  INSERT INTO `furama`.`loaidichvu`(`idLoaiDichVu`, `TenLoaiDichVu`)
+  VALUES('3','thuê room');
+  
+  
+  
+INSERT INTO `furama`.`dichvu` (`idDichVu`, `TenDichVu`, `DienTich`, `SoTang`, `ChiPhiThue`, `idKieuThue`, `idLoaiDichVu`, `TieuChuanPhong`, `DienTichHoBoi`) 
+VALUES ('1', 'villa', '150', '2', '10%', '1', '1', '5 sao', '10');
+INSERT INTO `furama`.`dichvu` (`idDichVu`, `TenDichVu`, `DienTich`, `SoTang`, `ChiPhiThue`, `SoNguoiToiDa`, `idKieuThue`, `idLoaiDichVu`, `TieuChuanPhong`, `DienTichHoBoi`) 
+VALUES ('1', 'villa', '200', '2', '10%', '6', '1', '1', '5 sao', '10');
+INSERT INTO `furama`.`dichvu` (`idDichVu`, `TenDichVu`, `DienTich`, `SoTang`, `ChiPhiThue`, `SoNguoiToiDa`, `idKieuThue`, `idLoaiDichVu`, `TieuChuanPhong`) 
+VALUES ('2', 'house', '75', '2', '10%', '5', '2', '2', '5 sao');
+INSERT INTO `furama`.`dichvu` (`idDichVu`, `TenDichVu`, `DienTich`, `SoTang`, `ChiPhiThue`, `SoNguoiToiDa`, `idKieuThue`, `idLoaiDichVu`, `TieuChuanPhong`) 
+VALUES ('2', 'house', '105', '2', '10%', '6', '2', '2', '5 sao');
+INSERT INTO `furama`.`dichvu` (`idDichVu`, `TenDichVu`, `DienTich`, `SoTang`, `ChiPhiThue`, `SoNguoiToiDa`, `idKieuThue`, `idLoaiDichVu`, `TieuChuanPhong`) 
+VALUES ('3', 'room ', '45', '15', '10%', '4', '3', '3', '5 sao');
+INSERT INTO `furama`.`dichvu` (`idDichVu`, `TenDichVu`, `DienTich`, `SoTang`, `ChiPhiThue`, `SoNguoiToiDa`, `idKieuThue`, `idLoaiDichVu`, `TieuChuanPhong`) 
+VALUES ('3', 'room', '30', '15', '10%', '2', '3', '3', '5 sao');
+INSERT INTO `furama`.`dichvu` (`idDichVu`, `TenDichVu`, `DienTich`, `SoTang`, `ChiPhiThue`, `SoNguoiToiDa`, `idKieuThue`, `idLoaiDichVu`, `TieuChuanPhong`) 
+VALUES ('3', 'room', '25', '15', '10%', '2', '3', '3', '5 sao');
+
+
+insert into khachhang 
+values (6,1,'Dinh Thanh Lam','1996-05-07',1,'0983','0713','lam@gmail.com','quang tri');
+
+INSERT INTO `furama`.`hopdong` (`idHopDong`, `idNhanVien`, `idKhachHang`, `idDichVu`, `NgayBatDau`, `NgayKetThuc`, `TienDatCoc`, `TongTien`) 
+VALUES ('1', '1', '3', '3', '2021-04-12', '2022-04-12', '5000000', '45000000');
+INSERT INTO `furama`.`hopdong` (`idHopDong`, `idNhanVien`, `idKhachHang`, `idDichVu`, `NgayBatDau`, `NgayKetThuc`, `TienDatCoc`, `TongTien`) 
+ VALUES('2', '2', '1', '4', '2021-03-15', '2022-03-15', '6000000', '75000000');
+
+INSERT INTO `furama`.`hopdong` (`idHopDong`, `idNhanVien`, `idKhachHang`, `idDichVu`, `NgayBatDau`, `NgayKetThuc`, `TienDatCoc`, `TongTien`) 
+VALUES ('3', '5', '1', '7', '2021-05-15', '2022-05-15', '5000000', '45000000');
+INSERT INTO `furama`.`hopdong` (`idHopDong`, `idNhanVien`, `idKhachHang`, `idDichVu`, `NgayBatDau`, `NgayKetThuc`, `TienDatCoc`, `TongTien`) 
+VALUES ('4', '3', '1', '6', '2021-10-09', '2023-10-09', '5000000', '90000000');
