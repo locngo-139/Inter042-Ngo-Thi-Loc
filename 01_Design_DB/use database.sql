@@ -26,7 +26,7 @@ SELECT khachhang.HoTen, count(hopdong.idKhachHang) as SoLanDatPhong
 FROM hopdong
 left join khachhang on hopdong.idKhachHang=khachhang.idKhachHang
 left join loaikhachhang on loaikhachhang.idLoaiKhachHang=khachhang.idLoaiKhachHang
-WHERE loaikhachhang.TenLoaiKhachHang="Diamond"
+WHERE loaikhachhang.TenLoaiKhachHang='Diamond'
 GROUP BY count(hopdong.idKhachHang)  
 order by   ;
 
@@ -58,17 +58,83 @@ left join loaikhachhang on loaikhachhang.idLoaiKhachHang=khachhang.idLoaiKhachHa
 -- cau 6 Hiển thị IDDichVu, TenDichVu, DienTich, ChiPhiThue, TenLoaiDichVu của tất cả các loại Dịch vụ 
 -- chưa từng được Khách hàng thực hiện đặt từ quý 1 của năm 2019 (Quý 1 là tháng 1, 2, 3).
 
-SELECT dichvu.idDichVu,dichvu.TenDichVu,dichvu.DienTic,dichvu.ChiPhiThue,loaidichvu.TenLoaiDichVu,
+use furama;
+
+SELECT dichvu.idDichVu,dichvu.TenDichVu,dichvu.DienTich,dichvu.ChiPhiThue,loaidichvu.TenLoaiDichVu,
 dichvudikem.tenDichVuDiKem
 FROM dichvu
 left join hopdong on hopdong.idDichVu=dichvu.idDichVu
 left join loaidichvu on loaidichvu.idLoaiDichVu=dichvu.idLoaiDichVu
-WHERE dichvu.idDichVu not in ()
-;
+left join hopdongchitiet on hopdongchitiet.idHopDong=hopdong.idHopDong
+left join dichvudikem on dichvudikem.idDichVuDiKem=hopdongchitiet.idDichVuDiKem
+WHERE dichvu.idDichVu not in ( select idDichVu from hopdong 
+							where year(hopdong.NgayBatDdau)=2019 and (month(hopdong.NgayBatDdau)=1
+                            or month(hopdong.NgayBatDdau)=2 or month(hopdong.NgayBatDdau)=3 ) );
+
 
 -- select dichvu.IDDichVu, dichvu.TenDichVu, dichvu.DienTich, dichvu.ChiPhiThue, loaidichvu.TenLoaiDichVu 
 -- from dichvu join loaidichvu on loaidichvu.IDLoaiDichVu = dichvu.IDLoaiDichVu  
 -- where dichvu.IDDichVu not in  (select IDDichVu from hopdong where year(NgayLam) = 2019 and quarter(NgayLam) = 1);
+
+-- cau 7 Hiển thị thông tin IDDichVu, TenDichVu, DienTich, SoNguoiToiDa, ChiPhiThue, TenLoaiDichVu 
+-- của tất cả các loại dịch vụ đã từng được Khách hàng đặt phòng trong năm 2018 nhưng chưa từng được Khách
+-- hàng đặt phòng trong năm 2019.
+
+use furama;
+SELECT dichvu.idDichVu,dichvu.TenDichVu,dichvu.DienTich,dichvu.SoNguoiToiDa,dichvu.ChiPhiThue,
+loaidichvu.TenLoaiDichVu
+from dichvu
+left join loaidichvu on loaidichvu.idLoaiDichVu=dichvu.idLoaiDichVu
+where year(dichvu.TenDichVu)=2018 not in (select dichvu.TenDichVu where dichvu
+									where year(dichvu.TenDichVu)=2019);
+
+select year(dichvu.TenDichVu)=2018;
+
+
+-- cau 8 Hiển thị thông tin HoTenKhachHang có trong hệ thống, với yêu cầu HoThenKhachHang không trùng nhau.
+-- Học viên sử dụng theo 3 cách khác nhau để thực hiện yêu cầu trên
+
+select DISTINCT khachhang.HoTen,khachhang.idKhachHang,khachhang.NgaySinh,khachhang.GioiTinh,khachhang.CMND,
+khachhang.SoDT,khachhang.Email,khachhang.DiaChi
+from khachhang;
+
+select * from khachhang
+where ;
+
+-- cau 9 Thực hiện thống kê doanh thu theo tháng, nghĩa là tương ứng với mỗi tháng trong năm 2019
+-- thì sẽ có bao nhiêu khách hàng thực hiện đặt phòng.
+
+use furama;
+select count(month(hopdong.NgayBatDau)=)
+from hopdong
+group by count(month(hopdong.NgayBatDau));
+
+
+-- cau 10 Hiển thị thông tin tương ứng với từng Hợp đồng thì đã sử dụng bao nhiêu Dịch vụ đi kèm. 
+-- Kết quả hiển thị bao gồm IDHopDong, NgayLamHopDong, NgayKetthuc, TienDatCoc,
+-- SoLuongDichVuDiKem (được tính dựa trên việc count các IDHopDongChiTiet).
+
+use furama;
+
+select hopdong.idHopDong, hopdong.NgayBatDau,hopdong.NgayKetThuc,TienDatCoc,
+count(hopdongchitiet.idHopDongChiTiet) as SoLuongDichVuDiKem
+from hopdong
+left join hopdongchitiet on hopdongchitiet.idHopDong=hopdong.idHopDong
+left join dichvudikem on dichvudikem.idDichVuDiKem=hopdongchitiet.idDichVuDiKem;
+-- coi lai
+
+
+-- cau 11 Hiển thị thông tin các Dịch vụ đi kèm đã được sử dụng bởi những Khách hàng có 
+-- TenLoaiKhachHang là “Diamond” và có địa chỉ là “Vinh” hoặc “Quảng Ngãi”.
+
+select loaikhachhang.TenLoaiKhachHang,tenDichVuDiKem,dichvudikem.Gia
+from dichvudikem
+left join hopdongchitiet on dichvudikem.idDichVuDiKem=hopdongchitiet.idDichVuDiKem
+left join hopdong on hopdongchitiet.idHopDong=hopdong.idHopDong
+left join khachhang on khachhang.idKhachHang=hopdong.idKhachHang
+left join loaikhachhang on loaikhachhang.idLoaiKhachHang=khachhang.idLoaiKhachHang
+where loaikhachhang.TenLoaiKhachHang='diamond' and (khachhang.DiaChi='Vinh' or khachhang.DiaChi='Quang Ngai');
+
 
 
 -- cau 12 Hiển thị thông tin IDHopDong, TenNhanVien, TenKhachHang,
@@ -86,6 +152,8 @@ left join khachhang on khachhang.idKhachHang=hopdong.idKhachHang
 left join hopdongchitiet on hopdongchitiet.idHopDong=hopdong.idHopDong 
 left join dichvudikem on dichvudikem.idDichVuDiKem=hopdongchitiet.idDichVuDiKem 
 left join nhanvien on nhanvien.idNhanVien=hopdong.idNhanVien;
+
+
 
 -- cau 14 Hiển thị thông tin tất cả các Dịch vụ đi kèm chỉ mới được sử dụng một
 -- lần duy nhất. Thông tin hiển thị bao gồm IDHopDong, TenLoaiDichVu, TenDichVuDiKem, SoLanSuDung.
