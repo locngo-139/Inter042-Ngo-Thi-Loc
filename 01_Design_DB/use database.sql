@@ -61,7 +61,14 @@ left join loaikhachhang on loaikhachhang.idLoaiKhachHang=khachhang.idLoaiKhachHa
 SELECT dichvu.idDichVu,dichvu.TenDichVu,dichvu.DienTic,dichvu.ChiPhiThue,loaidichvu.TenLoaiDichVu,
 dichvudikem.tenDichVuDiKem
 FROM dichvu
-left join 
+left join hopdong on hopdong.idDichVu=dichvu.idDichVu
+left join loaidichvu on loaidichvu.idLoaiDichVu=dichvu.idLoaiDichVu
+WHERE dichvu.idDichVu not in ()
+;
+
+-- select dichvu.IDDichVu, dichvu.TenDichVu, dichvu.DienTich, dichvu.ChiPhiThue, loaidichvu.TenLoaiDichVu 
+-- from dichvu join loaidichvu on loaidichvu.IDLoaiDichVu = dichvu.IDLoaiDichVu  
+-- where dichvu.IDDichVu not in  (select IDDichVu from hopdong where year(NgayLam) = 2019 and quarter(NgayLam) = 1);
 
 
 -- cau 12 Hiển thị thông tin IDHopDong, TenNhanVien, TenKhachHang,
