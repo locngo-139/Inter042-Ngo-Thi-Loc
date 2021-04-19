@@ -381,3 +381,25 @@ INSERT INTO `furama`.`hopdong` (`idHopDong`, `idNhanVien`, `idKhachHang`, `idDic
 VALUES ('3', '5', '1', '7', '2021-05-15', '2022-05-15', '5000000', '45000000');
 INSERT INTO `furama`.`hopdong` (`idHopDong`, `idNhanVien`, `idKhachHang`, `idDichVu`, `NgayBatDau`, `NgayKetThuc`, `TienDatCoc`, `TongTien`) 
 VALUES ('4', '3', '1', '6', '2021-10-09', '2023-10-09', '5000000', '90000000');
+
+
+-- chen them vao barng hopdongchitiet
+INSERT INTO `furama`.`hopdongchitiet` (`idHopDongChiTiet`, `idHopDong`, `idDichVuDiKem`, `SoLuong`) VALUES ('1', '1', '3', '1');
+INSERT INTO `furama`.`hopdongchitiet` (`idHopDongChiTiet`, `idHopDong`, `idDichVuDiKem`, `SoLuong`) VALUES ('2', '2', '2', '1');
+INSERT INTO `furama`.`hopdongchitiet` (`idHopDongChiTiet`, `idHopDong`, `idDichVuDiKem`, `SoLuong`) VALUES ('3', '3', '1', '1');
+INSERT INTO `furama`.`hopdongchitiet` (`idHopDongChiTiet`, `idHopDong`, `idDichVuDiKem`, `SoLuong`) VALUES ('4', '4', '5', '1');
+INSERT INTO `furama`.`hopdongchitiet` (`idHopDongChiTiet`, `idHopDong`, `idDichVuDiKem`, `SoLuong`) VALUES ('5', '1', '4', '1');
+
+
+ -- thay đổi chi phi thue trong bang furama
+ 
+UPDATE `furama`.`dichvu` SET `ChiPhiThue` = '40000' WHERE (`idDichVu` = '3');
+UPDATE `furama`.`dichvu` SET `ChiPhiThue` = '45000' WHERE (`idDichVu` = '4');
+UPDATE `furama`.`dichvu` SET `ChiPhiThue` = '35000' WHERE (`idDichVu` = '5');
+UPDATE `furama`.`dichvu` SET `ChiPhiThue` = '30000' WHERE (`idDichVu` = '6');
+UPDATE `furama`.`dichvu` SET `ChiPhiThue` = '30000' WHERE (`idDichVu` = '7');
+
+-- chen them cho bang khachhang
+
+INSERT INTO `furama`.`khachhang`
+VALUES (7,1, 'Tran Van Nam', '1998-05-03', 0, '0732', '0176','nam@gmail.com','vinh');

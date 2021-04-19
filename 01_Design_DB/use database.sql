@@ -61,15 +61,15 @@ left join loaikhachhang on loaikhachhang.idLoaiKhachHang=khachhang.idLoaiKhachHa
 use furama;
 
 SELECT dichvu.idDichVu,dichvu.TenDichVu,dichvu.DienTich,dichvu.ChiPhiThue,loaidichvu.TenLoaiDichVu,
-dichvudikem.tenDichVuDiKem
+dichvudikem.tenDichVuDiKem,hopdong.NgayBatDau
 FROM dichvu
 left join hopdong on hopdong.idDichVu=dichvu.idDichVu
 left join loaidichvu on loaidichvu.idLoaiDichVu=dichvu.idLoaiDichVu
 left join hopdongchitiet on hopdongchitiet.idHopDong=hopdong.idHopDong
 left join dichvudikem on dichvudikem.idDichVuDiKem=hopdongchitiet.idDichVuDiKem
 WHERE dichvu.idDichVu not in ( select idDichVu from hopdong 
-							where year(hopdong.NgayBatDdau)=2019 and (month(hopdong.NgayBatDdau)=1
-                            or month(hopdong.NgayBatDdau)=2 or month(hopdong.NgayBatDdau)=3 ) );
+							where year(hopdong.NgayBatDau)=2019 and (month(hopdong.NgayBatDau)=1
+                            or month(hopdong.NgayBatDau)=2 or month(hopdong.NgayBatDau)=3 ) );
 
 
 -- select dichvu.IDDichVu, dichvu.TenDichVu, dichvu.DienTich, dichvu.ChiPhiThue, loaidichvu.TenLoaiDichVu 
@@ -84,7 +84,7 @@ use furama;
 SELECT dichvu.idDichVu,dichvu.TenDichVu,dichvu.DienTich,dichvu.SoNguoiToiDa,dichvu.ChiPhiThue,
 loaidichvu.TenLoaiDichVu
 from dichvu
-left join loaidichvu on loaidichvu.idLoaiDichVu=dichvu.idLoaiDichVu
+left join loaidichvu on dichvu.idLoaiDichVu=loaidichvu.idLoaiDichVu
 where year(dichvu.TenDichVu)=2018 not in (select dichvu.TenDichVu where dichvu
 									where year(dichvu.TenDichVu)=2019);
 
@@ -98,17 +98,27 @@ select DISTINCT khachhang.HoTen,khachhang.idKhachHang,khachhang.NgaySinh,khachha
 khachhang.SoDT,khachhang.Email,khachhang.DiaChi
 from khachhang;
 
-select * from khachhang
-where ;
+select *
+from khachhang
+group by khachhang.HoTen;
 
 -- cau 9 Thực hiện thống kê doanh thu theo tháng, nghĩa là tương ứng với mỗi tháng trong năm 2019
 -- thì sẽ có bao nhiêu khách hàng thực hiện đặt phòng.
 
 use furama;
-select count(month(hopdong.NgayBatDau)=)
+select monthname(hopdong.NgayBatDau)as months,month(hopdong.NgayBatDau)as month,count(*)
 from hopdong
-group by count(month(hopdong.NgayBatDau));
+group by monthname(hopdong.NgayBatDau);
 
+-- cach lay ngay tu chuoi
+-- SELECT STR_TO_DATE("August 10 2017", "%M %d %Y")
+
+-- SELECT 
+--     (MONTH(birthday)) AS month, COUNT(*) AS number_of_birthdays
+-- FROM
+ --   friends
+-- GROUP BY month
+-- ORDER BY month ASC
 
 -- cau 10 Hiển thị thông tin tương ứng với từng Hợp đồng thì đã sử dụng bao nhiêu Dịch vụ đi kèm. 
 -- Kết quả hiển thị bao gồm IDHopDong, NgayLamHopDong, NgayKetthuc, TienDatCoc,
@@ -116,7 +126,7 @@ group by count(month(hopdong.NgayBatDau));
 
 use furama;
 
-select hopdong.idHopDong, hopdong.NgayBatDau,hopdong.NgayKetThuc,TienDatCoc,
+select DISTINCT hopdong.idHopDong, hopdong.NgayBatDau,hopdong.NgayKetThuc,TienDatCoc,
 count(hopdongchitiet.idHopDongChiTiet) as SoLuongDichVuDiKem
 from hopdong
 left join hopdongchitiet on hopdongchitiet.idHopDong=hopdong.idHopDong
@@ -152,31 +162,88 @@ left join khachhang on khachhang.idKhachHang=hopdong.idKhachHang
 left join hopdongchitiet on hopdongchitiet.idHopDong=hopdong.idHopDong 
 left join dichvudikem on dichvudikem.idDichVuDiKem=hopdongchitiet.idDichVuDiKem 
 left join nhanvien on nhanvien.idNhanVien=hopdong.idNhanVien;
+where (month(hopdong.NgayBatDau) between 1 and 3) not in (select month(hopdong.NgayBatDau) from hopdong
+													where month() between );
 
+
+-- cau 13 Hiển thị thông tin các Dịch vụ đi kèm được sử dụng nhiều nhất bởi các. Khách hàng đã đặt phòng. 
+-- (Lưu ý là có thể có nhiều dịch vụ có số lần sử dụng nhiều như nhau).
+
+use furama;
+
+select hopdongchitiet.idDichVuDiKem,dichvudikem.tenDichVuDiKem 
+FROM hopdongchitiet
+left join dichvudikem on dichvudikem.idDichVuDiKem =hopdongchitiet.idDichVuDiKem
+order by hopdongchitiet.idDichVuDiKem DESC;
 
 
 -- cau 14 Hiển thị thông tin tất cả các Dịch vụ đi kèm chỉ mới được sử dụng một
 -- lần duy nhất. Thông tin hiển thị bao gồm IDHopDong, TenLoaiDichVu, TenDichVuDiKem, SoLanSuDung.
 
 SELECT hopdong.idHopDong, dichvudikem.tenDichVuDiKem,loaidichvu.TenLoaiDichVu,
-sum  as SoLanSuDung
+count(hopdongchitiet.idDichVuDiKem)  as SoLanSuDung
 FROM hopdongchitiet
 left join hopdong on hopdong.idHopDong=hopdongchitiet.idHopDong
-left join dichvudikem on dichvudikem.idDichVuDiKem=hopdongchitiet.idDichVuDiKem;
+left join dichvudikem on dichvudikem.idDichVuDiKem=hopdongchitiet.idDichVuDiKem
+left join dichvu on dichvu.idDichVu= hopdong.idDichVu
+left join loaidichvu on dichvu.idLoaiDichVu=loaidichvu.idLoaiDichVu
+group by hopdong.idHopDong;
 
 -- 15 Hiển thi thông tin của tất cả nhân viên bao gồm IDNhanVien, HoTen, TrinhDo, TenBoPhan, SoDienThoai, 
 -- DiaChi mới chỉ lập được tối đa 3 hợp đồng từ năm 2018 đến 2019.
 
-SELECT nhanvien.idNhanVien,nhanvien.HoTen
+SELECT nhanvien.idNhanVien,nhanvien.HoTen,trinhdo.TrinhDo,bophan.BoPhan,nhanvien.SoDT,nhanvien.DiaChi
+from nhanvien
+left join trinhdo on trinhdo.idTrinhDo=nhanvien.idTrinhDo
+left join bophan on bophan.idBoPhan=nhanvien.idBoPhan
+left join hopdong on hopdong.idNhanVien=nhanvien.idNhanVien
+where  (select * from hopdong
+	where year(hopdong.NgayBatDau) between 2018 and 2019)
+group by nhanvien.idNhanVien
+having (count(hopdong.idHopDong)<= 3);
+    -- chua duoc
+    
 
--- cau 16 
-select *
+-- cau 16 Xóa những Nhân viên chưa từng lập được hợp đồng nào từ năm 2017 đến năm 2019.
+
+delete from nhanvien
+where ( select *
 from nhanvien 
 left join hopdong on nhanvien.idNhanVien=hopdong.idNhanVien
-where (NgayBatDau between "2017-01-01" and "2017-01-01") or NgayBatDau is null ;
+where (NgayBatDau between "2017-01-01" and "2017-01-01") or NgayBatDau is null) ;
+
+-- cau 17 Cập nhật thông tin những khách hàng có TenLoaiKhachHang từ Platinium lên Diamond, chỉ cập nhật 
+-- những khách hàng đã từng đặt phòng với tổng Tiền thanh toán trong năm 2019 là lớn hơn 10.000.000 VNĐ.
+
+select * 
+from khachhang
+left join loaikhachhang on loaikhachhang.idLoaiKhachHang=khachhang.idLoaiKhachHang
+left join hopdong on hopdong.idKhachHang=khachhang.idKhachHang
+where (hopdong.TongTien=10000000) and (loaikhachhang.TenLoaiKhachHang='diamond' 
+or loaikhachhang.TenLoaiKhachHang='platinium');
+
+
+-- cau 18 Xóa những khách hàng có hợp đồng trước năm 2016 (chú ý ràng buộc giữa các bảng).
+
+delete from khachhang
+where (select * from hopdong
+	left join khachhang on khachhang.idKhachHang=hopdong.idHopDong
+    where year(hopdong.NgayBatDau)<=2016);
+    
+-- cau 19 Cập nhật giá cho các Dịch vụ đi kèm được sử dụng trên 10 lần trong năm 2019 lên gấp đôi.
+update dichvudikem set gia=gia*2
+where (select * from hopdongchitiet
+left join dichvudikem on hopdongchitiet.idDichVuDiKem=dichvudikem.idDichVuDiKem
+where year()=2019
+having count(hopdongchitiet.idDichVuDiKem)>10);
 
 -- cau 20 Hiển thị thông tin của tất cả các Nhân viên và Khách hàng có trong hệ thống, thông tin hiển thị 
 -- bao gồm ID (IDNhanVien, IDKhachHang), HoTen, Email, SoDienThoai, NgaySinh, DiaChi.
 
 SELECT hopdong.idHopDong,nhanvien.idNhanVien,nhanvien.HoTen as TenNhanVien,
-khachhang.idKhachHang,khachhang.HoTen as TenKhachHang,
+khachhang.idKhachHang,khachhang.HoTen as TenKhachHang,nhanvien.Email as EmailNhanVien,
+khachhang.Email as EmailKhachHang,khachhang.Email as EmailKhachHang,khachhang.SoDT as SDTKhachHang,
+khachhang.NgaySinh as NgaySinhKH,khachhang.DiaChi as DiaChiKH
+from hopdong
+left join nhanvien on nhanvien.idNhanVien=hopdong.idNhanVien
+left join khachhang on khachhang.idKhachHang=hopdong.idKhachHang;
