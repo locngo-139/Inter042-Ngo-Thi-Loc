@@ -1,9 +1,11 @@
 use furama;
--- cau 2 Hiển thị thông tin của tất cả nhân viên có trong hệ thống có tên bắt đầu là một trong các ký tự “H”, “T” hoặc “K” và có tối đa 15 ký tự.
+-- cau 2 Hiển thị thông tin của tất cả nhân viên có trong hệ thống có tên bắt đầu là một trong các ký tự “H”, 
+-- “T” hoặc “K” và có tối đa 15 ký tự.
+
 select * 
 from nhanvien
-where substring_index(HoTen, ' ', -1) like 'H%' or substring_index(HoTen, ' ', -1) like 'T%' 
-or substring_index(HoTen, ' ', -1) like 'K%';
+where (substring_index(HoTen, ' ', -1) like 'H%' or substring_index(HoTen, ' ', -1) like 'T%' 
+or substring_index(HoTen, ' ', -1) like 'K%') and (char_length(HoTen)>=15);
 
 -- cau 3 Hiển thị thông tin của tất cả khách hàng có độ tuổi từ 18 đến 50 tuổi 
 -- và có địa chỉ ở “Đà Nẵng” hoặc “Quảng Trị”.
@@ -27,8 +29,10 @@ FROM hopdong
 left join khachhang on hopdong.idKhachHang=khachhang.idKhachHang
 left join loaikhachhang on loaikhachhang.idLoaiKhachHang=khachhang.idLoaiKhachHang
 WHERE loaikhachhang.TenLoaiKhachHang='Diamond'
-GROUP BY count(hopdong.idKhachHang)  
-order by   ;
+GROUP BY hopdong.idKhachHang 
+order by SoLanDatPhong  ;
+
+
 
 -- select HopDong.IDHopDong,KhachHang.HoTen, COUNT(HopDong.IDKhachHang) as Solan from HopDong 
 -- inner join KhachHang on HopDong.IDKhachHang = KhachHang.IDKhachHang 
@@ -85,8 +89,8 @@ SELECT dichvu.idDichVu,dichvu.TenDichVu,dichvu.DienTich,dichvu.SoNguoiToiDa,dich
 loaidichvu.TenLoaiDichVu
 from dichvu
 left join loaidichvu on dichvu.idLoaiDichVu=loaidichvu.idLoaiDichVu
-where year(dichvu.TenDichVu)=2018 not in (select dichvu.TenDichVu where dichvu
-									where year(dichvu.TenDichVu)=2019);
+where year(dichvu.TenDichVu)=2018 and (dichvu.TenDichVu not in (select dichvu.TenDichVu where dichvu
+									where year(dichvu.TenDichVu)=2019));
 
 select year(dichvu.TenDichVu)=2018;
 
@@ -139,10 +143,10 @@ left join dichvudikem on dichvudikem.idDichVuDiKem=hopdongchitiet.idDichVuDiKem;
 
 select loaikhachhang.TenLoaiKhachHang,tenDichVuDiKem,dichvudikem.Gia
 from dichvudikem
-left join hopdongchitiet on dichvudikem.idDichVuDiKem=hopdongchitiet.idDichVuDiKem
-left join hopdong on hopdongchitiet.idHopDong=hopdong.idHopDong
-left join khachhang on khachhang.idKhachHang=hopdong.idKhachHang
-left join loaikhachhang on loaikhachhang.idLoaiKhachHang=khachhang.idLoaiKhachHang
+ join hopdongchitiet on dichvudikem.idDichVuDiKem=hopdongchitiet.idDichVuDiKem
+join hopdong on hopdongchitiet.idHopDong=hopdong.idHopDong
+join khachhang on khachhang.idKhachHang=hopdong.idKhachHang
+join loaikhachhang on loaikhachhang.idLoaiKhachHang=khachhang.idLoaiKhachHang
 where loaikhachhang.TenLoaiKhachHang='diamond' and (khachhang.DiaChi='Vinh' or khachhang.DiaChi='Quang Ngai');
 
 
@@ -155,15 +159,18 @@ where loaikhachhang.TenLoaiKhachHang='diamond' and (khachhang.DiaChi='Vinh' or k
 
 SELECT hopdong.idHopDong,nhanvien.HoTen as tennhanvien,khachhang.HoTen as tenkhachhang,
 khachhang.SoDT as SDTkhachhang,dichvu.TenDichVu,
-(hopdongchitiet.SoLuong*dichvudikem.gia) as SoLuongDichVuDikem,hopdong.TienDatCoc  
+(count(hopdongchitiet.idDichVuDiKem)) as SoLuongDichVuDikem,hopdong.TienDatCoc  
 from hopdong
 left join dichvu on dichvu.idDichVu=hopdong.idDichVu
 left join khachhang on khachhang.idKhachHang=hopdong.idKhachHang
 left join hopdongchitiet on hopdongchitiet.idHopDong=hopdong.idHopDong 
 left join dichvudikem on dichvudikem.idDichVuDiKem=hopdongchitiet.idDichVuDiKem 
-left join nhanvien on nhanvien.idNhanVien=hopdong.idNhanVien;
-where (month(hopdong.NgayBatDau) between 1 and 3) not in (select month(hopdong.NgayBatDau) from hopdong
-													where month() between );
+left join nhanvien on nhanvien.idNhanVien=hopdong.idNhanVien
+where (hopdong.NgayBatDau between 2019-10-31 and 2019-12-31)and
+ (hopdong.NgayBatDau not in (select hopdong.NgayBatDau from hopdong
+			where hopdong.NgayBatDau between 2019-01-31 and 2019-06-31 ))
+group by dichvu.TenDichVu ;
+
 
 
 -- cau 13 Hiển thị thông tin các Dịch vụ đi kèm được sử dụng nhiều nhất bởi các. Khách hàng đã đặt phòng. 
@@ -171,10 +178,11 @@ where (month(hopdong.NgayBatDau) between 1 and 3) not in (select month(hopdong.N
 
 use furama;
 
-select hopdongchitiet.idDichVuDiKem,dichvudikem.tenDichVuDiKem 
+select hopdongchitiet.idDichVuDiKem,dichvudikem.tenDichVuDiKem,
+hopdongchitiet.idDichVuDiKem*hopdongchitiet.soluong as SoLanSuDung
 FROM hopdongchitiet
 left join dichvudikem on dichvudikem.idDichVuDiKem =hopdongchitiet.idDichVuDiKem
-order by hopdongchitiet.idDichVuDiKem DESC;
+order by count(SoLanSuDung) DESC;
 
 
 -- cau 14 Hiển thị thông tin tất cả các Dịch vụ đi kèm chỉ mới được sử dụng một
@@ -187,7 +195,8 @@ left join hopdong on hopdong.idHopDong=hopdongchitiet.idHopDong
 left join dichvudikem on dichvudikem.idDichVuDiKem=hopdongchitiet.idDichVuDiKem
 left join dichvu on dichvu.idDichVu= hopdong.idDichVu
 left join loaidichvu on dichvu.idLoaiDichVu=loaidichvu.idLoaiDichVu
-group by hopdong.idHopDong;
+group by hopdong.idHopDong
+having SoLanSuDung=1 ;
 
 -- 15 Hiển thi thông tin của tất cả nhân viên bao gồm IDNhanVien, HoTen, TrinhDo, TenBoPhan, SoDienThoai, 
 -- DiaChi mới chỉ lập được tối đa 3 hợp đồng từ năm 2018 đến 2019.
@@ -197,20 +206,20 @@ from nhanvien
 left join trinhdo on trinhdo.idTrinhDo=nhanvien.idTrinhDo
 left join bophan on bophan.idBoPhan=nhanvien.idBoPhan
 left join hopdong on hopdong.idNhanVien=nhanvien.idNhanVien
-where  (select * from hopdong
-	where year(hopdong.NgayBatDau) between 2018 and 2019)
+where   (year(hopdong.NgayBatDau) between 2018 and 2019)
 group by nhanvien.idNhanVien
 having (count(hopdong.idHopDong)<= 3);
-    -- chua duoc
+    
     
 
 -- cau 16 Xóa những Nhân viên chưa từng lập được hợp đồng nào từ năm 2017 đến năm 2019.
-
-delete from nhanvien
-where ( select *
-from nhanvien 
+SET SQL_SAFE_UPDATES = 0;
+ delete from  furama.nhanvien
+ where nhanvien.idNhanVien not in
+( select nhanvien.idNhanVien
+from furama.nhanvien 
 left join hopdong on nhanvien.idNhanVien=hopdong.idNhanVien
-where (NgayBatDau between "2017-01-01" and "2017-01-01") or NgayBatDau is null) ;
+where (NgayBatDau between "2017-01-01" and "2019-12-31") or NgayBatDau is null) ;
 
 -- cau 17 Cập nhật thông tin những khách hàng có TenLoaiKhachHang từ Platinium lên Diamond, chỉ cập nhật 
 -- những khách hàng đã từng đặt phòng với tổng Tiền thanh toán trong năm 2019 là lớn hơn 10.000.000 VNĐ.
@@ -228,13 +237,14 @@ or loaikhachhang.TenLoaiKhachHang='platinium');
 delete from khachhang
 where (select * from hopdong
 	left join khachhang on khachhang.idKhachHang=hopdong.idHopDong
-    where year(hopdong.NgayBatDau)<=2016);
+    where year(hopdong.NgayBatDau)<2016);
     
 -- cau 19 Cập nhật giá cho các Dịch vụ đi kèm được sử dụng trên 10 lần trong năm 2019 lên gấp đôi.
 update dichvudikem set gia=gia*2
-where (select * from hopdongchitiet
+where hopdongchitiet.idHopDongChiTiet (select hopdongchitiet.idHopDongChiTiet from hopdongchitiet
 left join dichvudikem on hopdongchitiet.idDichVuDiKem=dichvudikem.idDichVuDiKem
-where year()=2019
+left join hopdong on hopdong.idHopDong=hopdongchitiet.idHopDong
+where year(hopdong.NgayBatDau)=2019
 having count(hopdongchitiet.idDichVuDiKem)>10);
 
 -- cau 20 Hiển thị thông tin của tất cả các Nhân viên và Khách hàng có trong hệ thống, thông tin hiển thị 
@@ -247,3 +257,157 @@ khachhang.NgaySinh as NgaySinhKH,khachhang.DiaChi as DiaChiKH
 from hopdong
 left join nhanvien on nhanvien.idNhanVien=hopdong.idNhanVien
 left join khachhang on khachhang.idKhachHang=hopdong.idKhachHang;
+
+
+
+
+
+
+
+-- cau 21 Tạo khung nhìn có tên là V_NHANVIEN để lấy được thông tin của tất cả các nhân viên có địa chỉ 
+-- là “Hải Châu” và đã từng lập hợp đồng cho 1 hoặc nhiều Khách hàng bất kỳ với ngày lập hợp đồng là “12/12/2019”
+
+use furama;
+
+DROP VIEW V_NHANVIEN;
+
+create view V_NHANVIEN as 
+select nhanvien.idNhanVien,nhanvien.HoTen from nhanvien
+join hopdong on nhanvien.idNhanVien=hopdong.idNhanVien
+where nhanvien.DiaChi like'%Hai Chau%' and hopdong.NgayBatDau='2019-12-12'  ;
+
+alter view furama.V_NHANVIEN as select * from nhavien;
+
+SELECT * FROM V_NHANVIEN;
+
+
+-- cau 22 Thông qua khung nhìn V_NHANVIEN thực hiện cập nhật địa chỉ thành “Liên Chiểu” đối với 
+-- tất cả các Nhân viên được nhìn thấy bởi khung nhìn này.
+
+update V_NHANVIEN set DiaChi='Lien Chieu'
+where ;
+
+
+-- cau 23 Tạo Clustered Index có tên là IX_KHACHHANG trên bảng Khách hàng. Giải thích lý do và thực 
+-- hiện kiểm tra tính hiệu quả của việc sử dụng INDEX
+
+-- Index là dữ liệu có cấu trúc như B-Tree giúp cải thiện tốc độ tìm kiếm trên một bảng, làm giảm chi 
+-- phí thực hiện truy vấn. Việc tối ưu hóa chỉ mục sẽ giúp xác định được vị trí của dữ liệu cần tìm 
+-- thay vì phải dò theo thứ tự hàng triệu record trong bảng.
+
+drop index IX_KHACHHANG on khachhang;
+
+create index IX_KHACHHANG on khachhang(idKhachHang);
+
+
+
+-- cau 24 Tạo Non-Clustered Index có tên là IX_SoDT_DiaChi trên các cột SODIENTHOAI và DIACHI 
+-- trên bảng KHACH HANG và kiểm tra tính hiệu quả tìm kiếm sau khi tạo Index.
+
+drop index IX_SoDT_DiaChi on khachhang;
+
+create index IX_SoDT_DiaChi on khachhang(SoDT,DiaChi);
+
+
+
+-- cau 25 Tạo Store procedure Sp_1 Dùng để xóa thông tin của một Khách hàng
+-- nào đó với Id Khách hàng được truyền vào như là 1 tham số của Sp_1
+
+
+
+DELIMITER //
+
+CREATE PROCEDURE Sp_1(
+in idSp int,
+out message varchar(50)
+)
+if idSp in (select idKhachHang from khachhang) then
+
+BEGIN
+	delete from khachhang where khachhang.idKhachHang=idSp;
+	set message="Da xoa khach hang";
+/*** SQL for stored procedure ***/
+END;
+else
+BEGIN
+SET message = "Khach hang không tồn tại" ;
+END;
+END IF;
+
+// DELIMITER  ;
+
+call Sp_1;
+
+-- cau 26 Tạo Store procedure Sp_2 Dùng để thêm mới vào bảng HopDong với yêu cầu Sp_2 phải thực hiện 
+-- kiểm tra tính hợp lệ của dữ liệu bổ sung, với nguyên tắc không được trùng khóa chính và đảm bảo 
+-- toàn vẹn tham chiếu đến các bảng liên quan.
+
+DELIMITER //
+
+CREATE PROCEDURE Sp_2(
+	in idHD int,
+	   idNV int,
+       idKH int,
+       idDV int,
+       ngaybatdau date,
+       ngayketthuc date,
+       tiendatcoc double,
+       tongtien double,
+	out message varchar(50)
+)
+if idHD not in(select idHopDong from hopdong) then
+begin
+	insert into furama.hopdong set
+    idHopDong=idD,
+    idNhanVien=idNV,
+    idKhachHang=idKH,
+    idDichVu=idDV,
+    NgayBatDau=ngaybatdau,
+    NgayKetThuc=ngayketthuc,
+    TienDatCoc=tiendatcoc,
+    TongTien=tongtien;
+    set message='Da Insert hop dong moi';
+end;
+else
+set message='chua Insert duoc hop dong moi';
+end if;
+// DELIMITER  ;
+
+EXEC Sp_2;
+
+-- cau 27 Tạo triggers có tên Tr_1 Xóa bản ghi trong bảng HopDong thì hiển thị tổng số lượng bản ghi 
+-- còn lại có trong bảng HopDong ra giao diện console của database
+
+CREATE TRIGGER Tr_1 after delete on hopdong 
+FOR EACH ROW  
+
+-- update hopdong set new.tongsoluongbanghi=count(idHopDong)
+
+-- cau 28 Tạo triggers có tên Tr_2 Khi cập nhật Ngày kết thúc hợp đồng, cần kiểm tra xem thời gian cập 
+-- nhật có phù hợp hay không, với quy tắc sau: Ngày kết thúc hợp đồng phải lớn hơn ngày làm hợp đồng ít 
+-- nhất là 2 ngày. Nếu dữ liệu hợp lệ thì cho phép cập nhật, nếu dữ liệu không hợp lệ thì in ra thông báo 
+-- “Ngày kết thúc hợp đồng phải lớn hơn ngày làm hợp đồng ít nhất là 2 ngày” trên console của database
+
+-- cau 29 Tạo user function thực hiện yêu cầu sau:
+-- a. Tạo user function func_1: Đếm các dịch vụ đã được sử dụng với Tổng tiền là &gt; 2.000.000 VNĐ.
+-- b. Tạo user function Func_2: Tính khoảng thời gian dài nhất tính từ lúc bắt đầu làm hợp đồng đến lúc 
+-- kết thúc hợp đồng mà Khách hàng đã thực hiện thuê dịch vụ (lưu ý chỉ xét các khoảng thời gian dựa vào
+-- từng lần làm hợp đồng thuê dịch vụ, không xét trên toàn bộ các lần làm hợp đồng). Mã của Khách hàng 
+-- được truyền vào như là 1 tham số của function này.
+
+-- cau 30 Tạo Stored procedure Sp_3 để tìm các dịch vụ được thuê bởi khách hàng với loại dịch vụ 
+-- là “Room” từ đầu năm 2015 đến hết năm 2019 để xóa thông tin của các dịch vụ đó (tức là xóa các 
+-- bảng ghi trong bảng DichVu) và xóa những HopDong sử dụng dịch vụ liên quan (tức là phải xóa những
+-- bản gi trong bảng HopDong) và những bản liên quan khác.
+
+DELIMITER //
+CREATE PROCEDURE Sp_3 (
+in LoaiDichVu varchar(45),
+OUT message VARCHAR(50)
+)
+
+
+//  DELIMITER ;
+
+
+
